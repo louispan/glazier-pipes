@@ -1,6 +1,6 @@
 name:                glazier-pipes
 version:             0.1.0.0
-synopsis:            Converts Glazier widgets into a Pipe
+synopsis:            Converts Glazier widgets into a Pipe.
 description:         Please see README.md
 homepage:            https://github.com/louispan/glazier-pipes#readme
 license:             BSD3
