@@ -10,6 +10,6 @@ gadgetToPipe :: (Monad m, MonadTrans t, MonadState s (t m)) => G.Gadget s m a c 
 gadgetToPipe g = forever $ do
     a <- P.await
     s <- get
-    ~(c, s') <- lift . lift $ view G._GadgetT g a s
+    ~(c, s') <- lift . lift $ view G._Gadget g a s
     put s'
     P.yield c
