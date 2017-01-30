@@ -1,15 +1,28 @@
+{-# LANGUAGE RankNTypes #-}
+
 module Glazier.Pipes.Lazy where
 
+import Control.Concurrent.STM
+import Control.Lens
+import Control.Monad.Morph
 import Control.Monad.State.Lazy
 import qualified Glazier.Lazy as G
 import qualified Pipes as P
-import Control.Lens
+import qualified Pipes.Concurrent as PC
+import qualified Pipes.Misc as PM
 
--- | Converts a Gadget into a Pipe
+-- | Converts a 'Glazier.Gadget' into a 'Pipes.Pipe'
 gadgetToPipe :: (Monad m, MonadTrans t, MonadState s (t m)) => G.Gadget s m a c -> P.Pipe a c (t m) r
 gadgetToPipe g = forever $ do
     a <- P.await
     s <- get
+    -- This is the only line that is different between the Strict and Lazy version
     ~(c, s') <- lift . lift $ view G._Gadget g a s
     put s'
     P.yield c
+
+-- | Convert a 'Pipes.Concurrent.Input' and a 'Glazier.Gadget' into a stateful 'Pipes.Producer' of commands to interpret.
+gadgetToProducer ::
+  (MonadState s (t STM), MonadTrans t) =>
+  PC.Input a -> G.Gadget s STM a c -> P.Producer' c (t STM) ()
+gadgetToProducer input g = hoist lift (PM.fromInputSTM input) P.>-> gadgetToPipe g
