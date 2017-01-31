@@ -13,7 +13,8 @@ import qualified Glazier.Strict as G
 import qualified Pipes as P
 import qualified Pipes.Concurrent as PC
 import qualified Pipes.Lift as PL
-import qualified Pipes.Misc as PM
+import qualified Pipes.Misc.Concurrent as PM
+import qualified Pipes.Misc.State.Strict as PM
 
 -- | Converts a 'Glazier.Gadget' into a 'Pipes.Pipe'
 gadgetToPipe :: (Monad m, MonadTrans t, MonadState s (t m)) => G.Gadget s m a c -> P.Pipe a c (t m) r
@@ -31,18 +32,16 @@ gadgetToProducer ::
   PC.Input a -> G.Gadget s STM a c -> P.Producer' c (t STM) ()
 gadgetToProducer input g = hoist lift (PM.fromInputSTM input) P.>-> gadgetToPipe g
 
-
 -- | This is similar to part of the Elm startApp.
--- This is responsible for running the glazier widget update tick until it quits.
--- This is also responsible for rendering the frame and interpreting commands.
+-- This is responsible for running the Glazier Gadget update tick until it quits.
+-- This is also responsible for rendering the frame.
 runUi :: (MonadIO io) =>
      Int
+  -> (s -> IO ()) -- render
   -> s
-  -> (cmd -> MaybeT IO ()) -- interpretCmds
-  -> (s -> MaybeT IO ()) -- render
-  -> P.Producer cmd (StateT s STM) ()
+  -> P.Effect (MaybeT (StateT s io)) ()
   -> io s
-runUi refreshDelay initialState interpretCmds render appSig = do
+runUi refreshDelay render initialState appEffect = do
     -- framerate thread
     -- TMVar to indicate that the render thread can render, start non empty so we can render straight away.
     triggerRender <- liftIO $ newTMVarIO ()
@@ -76,21 +75,15 @@ runUi refreshDelay initialState interpretCmds render appSig = do
                          case r of
                              Nothing -> pure Nothing -- breaks (runMaybeT . forever) loop
                              Just _ -> retry
-                 render s)
+                 lift $ render s)
             (const . atomically $ putTMVar finishedRenderThread ())
-    -- hoist to atomically apply the STM
-    -- then lift from StateT s IO -> MaybeT (StateT s IO)
-    s' <-
-        liftIO $
-        P.runEffect $
+
+    -- This is different between the Strict and Lazy version
+    s' <- P.runEffect $
         PL.execStateP initialState $
         PL.runMaybeP $
-        -- hoist MaybeT STM -> MaybeT (StateT STM), then lift into the Pipe
-        P.for (hoist
-                  (lift . hoist (liftIO . atomically))
-                  (appSig P.>-> PM.onState (void . lift . STE.forceSwapTMVar latestState))) $ \c ->
-            lift $ hoist lift (interpretCmds c)
-
+        appEffect P.>-> PM.onState
+            (liftIO . atomically . void . STE.forceSwapTMVar latestState)
     -- cleanup
     -- allow rendering of the frame one last time
     liftIO . atomically $ takeTMVar enableRenderThread
@@ -99,6 +92,5 @@ runUi refreshDelay initialState interpretCmds render appSig = do
     -- kill frameRateThread only after render thread has finished
     -- since renderThread waits on triggers from frameRateThread
     liftIO $ killThread frameRateThread
-    -- liftIO $ killThread ctlsThread
     -- return final state
     liftIO $ pure s'
