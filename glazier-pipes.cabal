@@ -19,7 +19,6 @@ library
   exposed-modules:     Glazier.Pipes.Lazy
                        Glazier.Pipes.Strict
   build-depends:       base >= 4.7 && < 5
-                     , clock >= 0.7 && < 1
                      , glazier >= 0.6 && < 1
                      , lens >= 4 && < 5
                      , mmorph >= 1 && < 2
