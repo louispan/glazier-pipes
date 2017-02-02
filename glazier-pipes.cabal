@@ -18,6 +18,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Glazier.Pipes.Lazy
                        Glazier.Pipes.Strict
+                       Glazier.Pipes.Ui
   build-depends:       base >= 4.7 && < 5
                      , glazier >= 0.6 && < 1
                      , lens >= 4 && < 5
