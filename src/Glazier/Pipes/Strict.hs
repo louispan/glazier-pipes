@@ -16,7 +16,6 @@ import qualified Pipes.Lift as PL
 import qualified Pipes.Misc.Concurrent as PM
 import qualified Pipes.Misc.State.Strict as PM
 import qualified Pipes.Prelude as PP
-
 import qualified Pipes.Internal as PI
 
 

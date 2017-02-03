@@ -20,7 +20,7 @@ library
                        Glazier.Pipes.Strict
                        Glazier.Pipes.Ui
   build-depends:       base >= 4.7 && < 5
-                     , glazier >= 0.6 && < 1
+                     , glazier >= 0.7 && < 1
                      , lens >= 4 && < 5
                      , mmorph >= 1 && < 2
                      , mtl >= 2 && < 3
