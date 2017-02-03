@@ -9,7 +9,7 @@ import Control.Lens
 import Control.Monad.Morph
 import Control.Monad.State.Strict
 import Control.Monad.Trans.Maybe
-import qualified Glazier.Strict as G
+import qualified Glazier.Gadget.Strict as G
 import qualified Pipes as P
 import qualified Pipes.Concurrent as PC
 import qualified Pipes.Lift as PL
