@@ -1,6 +1,6 @@
 name:                glazier-pipes
-version:             0.1.4.0
-synopsis:            Converts Glazier widgets into a Pipe.
+version:             0.1.5.0
+synopsis:            A threaded rendering framework using glaizer and pipes
 description:         Please see README.md
 homepage:            https://github.com/louispan/glazier-pipes#readme
 license:             BSD3
@@ -16,17 +16,11 @@ tested-with:         GHC == 8.0.1
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Glazier.Pipes.Lazy
-                       Glazier.Pipes.Strict
-                       Glazier.Pipes.Ui
+  exposed-modules:     Glazier.Pipes.Ui
   build-depends:       base >= 4.7 && < 5
-                     , glazier >= 0.7 && < 1
-                     , lens >= 4 && < 5
+                     , glazier >= 0.8 && < 1
                      , mmorph >= 1 && < 2
-                     , mtl >= 2 && < 3
                      , pipes >= 4 && < 5
-                     , pipes-concurrency >= 2 && < 3
-                     , pipes-misc >= 0.2.3 && < 1
                      , stm >= 2.4 && < 3
                      , stm-extras > 0.1 &&  < 1
                      , transformers >= 0.4 && < 0.6
