@@ -15,6 +15,8 @@ import qualified Pipes.Prelude as PP
 -- | This is similar to part of the Elm startApp.
 -- This is responsible for running the Glazier Gadget update tick until it quits.
 -- This is also responsible for rendering the frame.
+-- This function is only required if you are not using another application framework which
+-- already takes care of rendering and processing user input.
 runUi :: (MonadIO io) =>
      Int
   -> (s -> IO ()) -- render
@@ -57,10 +59,11 @@ runUi refreshDelay render appSignal = do
                  lift $ render s)
             (const . atomically $ putTMVar finishedRenderThread ())
 
-    -- This is different between the Strict and Lazy version
+    -- application run
     s' <- P.runEffect $
         appSignal P.>-> PP.mapM
             (liftIO . atomically . void . STE.forceSwapTMVar latestState) P.>-> PP.drain
+
     -- cleanup
     -- allow rendering of the frame one last time
     liftIO . atomically $ takeTMVar enableRenderThread

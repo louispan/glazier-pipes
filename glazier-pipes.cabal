@@ -1,5 +1,5 @@
 name:                glazier-pipes
-version:             0.1.5.0
+version:             0.1.5.1
 synopsis:            A threaded rendering framework using glaizer and pipes
 description:         Please see README.md
 homepage:            https://github.com/louispan/glazier-pipes#readme
